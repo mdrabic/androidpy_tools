@@ -5,6 +5,8 @@ Wrapper for basic Android Debug Bridge commands.
 """
 
 import subprocess
+from exception import ADBException
+from exception import ADBProcessError
 from subprocess import check_output
 from subprocess import CalledProcessError
 
@@ -76,7 +78,7 @@ class ADB():
         output = check_output(cmd, stderr=subprocess.STDOUT)
         return ADBCommandResult(0,output)
     except CalledProcessError as e:
-        raise ADBExecutionError(e.cmd, e.returncode, e.output)
+        raise ADBProcessError(e.cmd, e.returncode, e.output)
 
   
   def __init__(self,adbPath="adb"):
@@ -106,28 +108,3 @@ class ADBCommandResult():
     """
     self.rtnCode = rtnCode
     self.output = output
-
-
-
-class ADBExecutionError(CalledProcessError):
-    """
-    Exception to describe an ADB execution error.  For example, the adb
-    command could return 0 but the shell on the android device does not
-    understand the command it received. Thus, this exception should not be
-    thrown.
-
-    An example of an appropriate situation is when a adb push command is ran
-    and the remote location is read-only. The push will fail and this should
-    be thrown.
-    """
-
-    def __init__(self, cmd, rtnCode, output):
-        """
-        cmd -- The string or byte array of the adb command ran
-        rtnCode -- The process return code
-        output -- Any output from the failed process
-        """
-        self.cmd = cmd
-        self.rtnCode = rtnCode
-        self.output = output
-        self.msg = "ADB returned a non-zero exit code"
