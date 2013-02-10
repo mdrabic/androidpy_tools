@@ -4,6 +4,8 @@
 Wrapper for basic Android Debug Bridge commands. 
 """
 
+
+import os
 import subprocess
 from exception import ADBException
 from exception import ADBProcessError
@@ -20,7 +22,25 @@ class ADB():
     Set path to the adb executable.
     """  
     self.__adb_path = path
-  
+
+
+  def _adb_self_test(self, adbPath):
+    """
+    A simple test to check if the adb executable exists and run the
+    'adb version' command for verification.
+    adbPath -- Absolute path to ADB
+
+    Throws ADBException:
+      If adb file does not exist or does not have execute permissions
+    Throws ADBProcessError:
+      If the 'adb version' command failed
+    """
+    if os.path.isfile(adbPath) and os.access(adbPath, os.X_OK):
+      self._run_command((adbPath+" version").split())
+      return True
+    else:
+      raise ADBException("ADB could not be located or is not executable")
+
   
   def adb_shell(self, serial, cmd):
     """
@@ -85,12 +105,29 @@ class ADB():
     """
     Init the class by optionally giving it a path to an adb executable. Otherwise,
     the class assumes adb is the environment PATH variable and retrieves the full
-    path to the executable.
+    path to the executable. The adb_self_test function is called to verify ADB.
+
+    adbPath -- Path to adb executable
+
+    Throws ADBException:
+      If ADB is not found in PATH or on the file system
+      If ADB does not have execute permission
+
+    Throws ADBProcessError
+      If the _adb_self_test() does not pass
     """
-    if adbPath == "adb":
-        self.__adb_path = check_output("which adb", shell=True).strip()
-    else:
-        self.__adb_path = adbPath
+    tmpPath = adbPath
+    if tmpPath == "adb":
+      for path in os.environ["PATH"].split(os.pathsep):
+        fullADBPath = os.path.join(path,adbPath)
+        if os.path.isfile(fullADBPath):
+          tmpPath = fullADBPath
+          break
+      else:
+        raise ADBException("ADB not found in PATH")
+
+    if self._adb_self_test(tmpPath):
+      self.__adb_path = tmpPath
 
 
 
