@@ -50,7 +50,7 @@ class ADB():
     executed as expected is for the caller to parse the output to ensure the
     results are what is expected.
     """
-    cmd = (self.__adb_path + " -s " + serial + " shell " + cmd).split()
+    cmd = self.__adb_path + " -s " + serial + " shell " + cmd
     return self._run_command(cmd.split())
 
     
@@ -99,6 +99,22 @@ class ADB():
         return ADBCommandResult(0,output)
     except CalledProcessError as e:
         raise ADBProcessError(e.cmd, e.returncode, e.output)
+
+
+  def adb_reboot(self, serial):
+    """
+    Reboot a device
+    """
+    cmd = self.__adb_path + " -s " + serial + " reboot"
+    return self._run_command(cmd.split())
+   
+    
+  def adb_wait_for_device(self, serial):
+    """
+    Wait for a device to come online
+    """
+    cmd = self.__adb_path + " -s " + serial + " wait-for-device"
+    return self._run_command(cmd.split())
 
   
   def __init__(self,adbPath="adb"):
