@@ -68,7 +68,7 @@ class ADB():
     """
     Pull the specified remote file/dir to the local location. 
     """
-    cmd = self.__adb_path + " -s " + serial + " pull " + local +" "+ remote
+    cmd = self.__adb_path + " -s " + serial + " pull " + remote +" "+ local
     return self._run_command(cmd.split())
     
 
