@@ -49,7 +49,7 @@ class sqlUtil():
     """
     if not bool(re.search(r'[^A-Za-z0-9_]', table)) and \
        not bool(re.search(r'[^A-Za-z0-9_,]', cols))  and \
-       not bool(re.search(r'[^A-Za-z0-9_,.\-\"]', values)):
+       not bool(re.search(r"[^A-Za-z0-9_,.\-\@:*'<>]", values)):
       cursor = self.conn.cursor()
       cursor.execute('INSERT INTO '+table+' ('+cols+') values ('+values+')')
       self.conn.commit()
